@@ -71,3 +71,25 @@ app.post("/products", async (req, res) => {
     res.status(500).json({ error: "Failed to create product" });
   }
 });
+
+app.put("/products/:id", async (req, res) => {
+  try {
+    const db = getDb();
+    const productId = req.params.id;
+    const updateData = req.body;
+
+    if (!ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
+
+    const result = await db
+      .collection("products")
+      .updateOne({ _id: new ObjectId(productId) }, { $set: updateData });
+
+    if (result.matchedCount === 0) {
+      return res.status(200).json({ message: "Product updated successfully" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update product" });
+  }
+});
